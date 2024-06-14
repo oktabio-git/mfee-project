@@ -1,54 +1,71 @@
-const categories = [];
+import Category from "../models/category";
 
-const getCategories = (req, res) => {
-  res.status(200).json(categories);
+const getCategories = async (req, res, next) => {
+  try {
+    const categories = await Category.find();
+    res.status(200).json(categories);
+  } catch (e) {
+    next(e);
+  }
 };
 
-const getCategoryById = (req, res) => {
-  const { id } = req.params;
-  const category = categories.find((c) => c.id === id);
-  if (!category) {
-    return res.status(404).json({ msg: "Category not found" });
+const getCategoryById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const category = await Category.findById(id);
+
+    if (!category) {
+      return res.status(404).json({ msg: "Category not found" });
+    }
+
+    res.status(200).json(category);
+  } catch (e) {
+    next(e);
   }
-  res.status(200).json(category);
 };
 
-const createCategory = (req, res) => {
-  const { name } = req.body;
-  if (!name) {
-    return res.status(400).json({ msg: "Name is required" });
+const createCategory = async (req, res, next) => {
+  try {
+    const categories = await Category.find();
+    const duplicate = categories.find((c) => c.name === req.body.name);
+    if (duplicate) {
+      return res.status(409).json({ msg: "Category already exists" });
+    }
+    const category = await Category.create(req.body);
+    res.status(201).json(category);
+  } catch (e) {
+    next(e);
   }
-  const newCategory = {
-    id: Date.now().toString(),
-    name,
-  };
-  categories.push(newCategory);
-  res.status(201).json(newCategory);
 };
 
-const updateCategory = (req, res) => {
-  const { id } = req.params;
-  const categoryIndex = categories.findIndex((p) => p.id === id);
-  if (categoryIndex === -1) {
-    return res.status(404).json({ msg: "Category not found" });
+const updateCategory = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const category = await Category.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+
+    if (!category) {
+      return res.status(404).json({ msg: "Category not found" });
+    }
+
+    res.status(200).json(category);
+  } catch (e) {
+    next(e);
   }
-  const updatedCategory = { ...categories[categoryIndex] };
-  const { name } = req.body;
-  if (name) {
-    updatedCategory.name = name;
-  }
-  categories[categoryIndex] = updatedCategory;
-  res.status(200).send(updatedCategory);
 };
 
-const deleteCategory = (req, res) => {
-  const { id } = req.params;
-  const categoryIndex = categories.findIndex((p) => p.id === id);
-  if (categoryIndex === -1) {
-    return res.status(404).json({ msg: "Category not found" });
+const deleteCategory = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const category = await Category.findByIdAndDelete(id);
+    if (!category) {
+      return res.status(404).json({ msg: "Category not found" });
+    }
+    res.status(204).send(category);
+  } catch (e) {
+    next(e);
   }
-  categories.splice(categoryIndex, 1);
-  res.status(204).send();
 };
 
 export default {

@@ -17,7 +17,7 @@ describe("app.ts", () => {
         .then((res) => {
           expect(res.statusCode).toBe(201);
           expect(res.body.msg).toEqual("User registered successfully");
-
+          
           done();
         });
     });

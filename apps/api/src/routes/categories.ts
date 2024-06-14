@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import express from "express";
 import categoryController from '../controllers/category';
 
 const router = express.Router();
@@ -13,4 +13,4 @@ router.patch("/:id", categoryController.updateCategory);
 
 router.delete("/:id", categoryController.deleteCategory);
 
-export default Router;
+export default router;
